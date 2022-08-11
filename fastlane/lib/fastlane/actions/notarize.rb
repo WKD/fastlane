@@ -45,6 +45,26 @@ module Fastlane
         end
       end
 
+      def self.notarytool_error(submission_id, auth_parts)
+        submit_parts = [
+          "xcrun notarytool log",
+          submission_id.shellescape,
+          "--output-format json",
+        ] + auth_parts
+
+        submit_command = submit_parts.join(' ')
+        submit_response = Actions.sh(
+          submit_command,
+          log: verbose,
+          error_callback: lambda { |msg|
+            UI.error("Error polling for notarization info: #{msg}")
+          }
+        )
+
+        notarization_info = JSON.parse(submit_response)
+        UI.user_error!("Notarize loge: '#{notarization_info.inspect}'")
+      end
+
       def self.notarytool(params, package_path, bundle_id, skip_stapling, print_log, verbose, api_key, compressed_package_path)
         temp_file = nil
 
@@ -101,8 +121,10 @@ module Fastlane
           end
         when 'Invalid'
           UI.user_error!("Could not notarize package with message '#{notarization_info['statusSummary']}'")
+          notarytool_error(submission_id, auth_parts)
         else
           UI.crash!("Could not notarize package with status '#{notarization_info['status']}'")
+          notarytool_error(submission_id, auth_parts)
         end
       ensure
         temp_file.delete if temp_file
