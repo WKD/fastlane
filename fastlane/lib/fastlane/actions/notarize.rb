@@ -62,7 +62,6 @@ module Fastlane
         )
 
         notarization_info = JSON.parse(submit_response)
-        UI.user_error!("Notarize loge: '#{notarization_info.inspect}'")
       end
 
       def self.notarytool(params, package_path, bundle_id, skip_stapling, print_log, verbose, api_key, compressed_package_path)
@@ -120,11 +119,9 @@ module Fastlane
             UI.success("Successfully notarized and stapled package")
           end
         when 'Invalid'
-          UI.user_error!("Could not notarize package with message '#{notarization_info['statusSummary']}'")
-          notarytool_error(submission_id, auth_parts)
+          UI.user_error!("Could not notarize package with message '#{notarization_info['statusSummary']}' - Log: #{notarytool_error(submission_id, auth_parts).inspect}")
         else
-          UI.crash!("Could not notarize package with status '#{notarization_info['status']}'")
-          notarytool_error(submission_id, auth_parts)
+          UI.crash!("Could not notarize package with status '#{notarization_info['status']}' - Log: #{notarytool_error(submission_id, auth_parts).inspect}")
         end
       ensure
         temp_file.delete if temp_file
