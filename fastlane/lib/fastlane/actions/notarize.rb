@@ -45,7 +45,7 @@ module Fastlane
         end
       end
 
-      def self.notarytool_error(submission_id, auth_parts)
+      def self.notarytool_error(submission_id, auth_parts, verbose)
         submit_parts = [
           "xcrun notarytool log",
           submission_id.shellescape,
@@ -119,9 +119,9 @@ module Fastlane
             UI.success("Successfully notarized and stapled package")
           end
         when 'Invalid'
-          UI.user_error!("Could not notarize package with message '#{notarization_info['statusSummary']}' - Log: #{notarytool_error(submission_id, auth_parts).inspect}")
+          UI.user_error!("Could not notarize package with message '#{notarization_info['statusSummary']}' - Log: #{notarytool_error(submission_id, auth_parts, verbose).inspect}")
         else
-          UI.crash!("Could not notarize package with status '#{notarization_info['status']}' - Log: #{notarytool_error(submission_id, auth_parts).inspect}")
+          UI.crash!("Could not notarize package with status '#{notarization_info['status']}' - Log: #{notarytool_error(submission_id, auth_parts, verbose).inspect}")
         end
       ensure
         temp_file.delete if temp_file
