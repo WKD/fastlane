@@ -102,11 +102,11 @@ module Fastlane
         )
 
         notarization_info = JSON.parse(submit_response)
+        submission_id = notarization_info["id"]
 
         # Staple
         case notarization_info['status']
         when 'Accepted'
-          submission_id = notarization_info["id"]
           UI.success("Successfully uploaded package to notarization service with request identifier #{submission_id}")
 
           if skip_stapling
